@@ -89,11 +89,11 @@ var JsDiff = (function() {
             // and does not pass the bounds of the diff graph
             if (!canAdd || (canRemove && addPath.newPos < removePath.newPos)) {
               basePath = clonePath(removePath);
-              this.pushComponent(basePath.components, oldString[oldPos], undefined, true);
+              this.pushComponent(basePath.components, oldString[oldPos], undefined, true, oldPos);
             } else {
               basePath = clonePath(addPath);
               basePath.newPos++;
-              this.pushComponent(basePath.components, newString[basePath.newPos], true, undefined);
+              this.pushComponent(basePath.components, newString[basePath.newPos], true, undefined, oldPos);
             }
 
             var oldPos = this.extractCommon(basePath, newString, oldString, diagonalPath);
@@ -107,15 +107,15 @@ var JsDiff = (function() {
         }
       },
 
-      pushComponent: function(components, value, added, removed) {
+      pushComponent: function(components, value, added, removed, oldPos) {
         var last = components[components.length-1];
         if (last && last.added === added && last.removed === removed) {
           // We need to clone here as the component clone operation is just
           // as shallow array clone
           components[components.length-1] =
-            {value: this.join(last.value, value), added: added, removed: removed };
+            {value: this.join(last.value, value), added: added, removed: removed, line: oldPos };
         } else {
-          components.push({value: value, added: added, removed: removed });
+          components.push({value: value, added: added, removed: removed, line: oldPos });
         }
       },
       extractCommon: function(basePath, newString, oldString, diagonalPath) {
